@@ -1,0 +1,32 @@
+---
+- name: Ticker backend setup
+  hosts: ticker
+  tasks:
+  - name: Create app directory in /opt
+    file:
+      path: /opt/ticker/
+      state: directory
+      mode: '0777'
+  - name: Upload executable
+    copy:
+      src: dist/tickerBackendGo
+      dest: /opt/ticker/tickerBackendGo
+      mode: a+x
+  - name: Creating service in systemd
+    copy:
+      dest: /etc/systemd/system/ticker.service
+      content: |
+        [Unit]
+        Description=ticker
+        [Service]
+        Type=simple
+        ExecStart=/opt/ticker/tickerBackendGo -port 80 -host 0.0.0.0
+        Restart=always
+        [Install]
+        WantedBy=multi-user.target
+  - name: Enable and restart service
+    systemd:
+      daemon_reload: yes
+      enabled: yes
+      state: restarted
+      name: ticker

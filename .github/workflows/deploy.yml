@@ -1,0 +1,36 @@
+name: Release
+on:
+  push: {}
+  workflow_dispatch:
+    inputs:
+      message:
+        description: Message
+        default: Rebuild with new commits.
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: "${{ secrets.githubPAT }}"
+          submodules: recursive
+
+      - name: Write ssh key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.sshKey }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.sshPubKey }}" > ~/.ssh/id_rsa.pub
+          chmod 600 ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa.pub
+
+      - name: Install Taskfile.dev deb
+        run: |
+          wget https://github.com/go-task/task/releases/download/v3.0.0/task_linux_amd64.deb
+          sudo dpkg -i ./task_linux_amd64.deb
+
+      - name: Build task
+        run: task build 
+
+      - name: Ansible some playbook
+        run: ansible-playbook ../playbook.yaml
+        working-directory: ansible

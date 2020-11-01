@@ -1,0 +1,3 @@
+[submodule "ansible"]
+	path = ansible
+	url = git@github.com:machineandme/-ops-ansible.git

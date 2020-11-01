@@ -1,0 +1,20 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  build:
+    cmds:
+      - task: distFolder
+      - go build -o dist/tickerBackendGo .
+    sources:
+      - ./*.go
+    generates:
+      - tickerBackendGo
+  distFolder:
+    cmds:
+      - mkdir ./dist/
+      - echo "*" > ./dist/.gitignore
+    status:
+      - test -d ./dist
+      - test -f ./dist/.gitignore

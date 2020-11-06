@@ -23,7 +23,7 @@ Content-Length: 2
 
 ok`)
 
-var fail = []byte(`HTTP/1.1 503 Service Unavailable
+var fail = []byte(`HTTP/1.1 403 Forbidden
 Server: HA-Counter (github.com/kiselev-nikolay/ha-counter)
 Connection: keep-alive
 Cache-Control: no-store

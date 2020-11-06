@@ -17,7 +17,7 @@
       tags:
         - "region:Frankfurt1"
         - "availability-zone:digital-ocean"
-        - "instance-type:gateway"
+        - "instance-type:ticker"
       logs_enabled: true
       process_config:
         enabled: "true"

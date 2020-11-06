@@ -1,6 +1,41 @@
 ---
 - name: Ticker backend setup
   hosts: ticker
+  roles:
+    - { role: datadog.datadog, become: yes }
+  vars:
+    workers:
+    - code: Anna
+      port: 4356
+    - code: Boris
+      port: 4357
+    - code: Cris
+      port: 4358
+    datadog_api_key: "5faebf15670514349970e9d499bf3ca8"
+    datadog_site: "datadoghq.com"
+    datadog_config:
+      tags:
+        - "region:Frankfurt1"
+        - "availability-zone:digital-ocean"
+        - "instance-type:gateway"
+      logs_enabled: true
+      process_config:
+        enabled: "true"
+    datadog_checks:
+      systemd:
+        init_config:
+        instances:
+          - unit_names:
+              - tickerAnna
+              - tickerBoris
+              - tickerCris
+      journald:
+        logs:
+          - type: journald
+            include_units:
+              - tickerAnna.service
+              - tickerBoris.service
+              - tickerCris.service
   tasks:
   - name: Create app directory in /opt
     file:
@@ -14,19 +49,21 @@
       mode: a+x
   - name: Creating service in systemd
     copy:
-      dest: /etc/systemd/system/ticker.service
+      dest: /etc/systemd/system/ticker{{item.code}}.service
       content: |
         [Unit]
-        Description=ticker
+        Description=ticker{{item.code}}
         [Service]
         Type=simple
-        ExecStart=/opt/ticker/tickerBackendGo -port 80 -host 0.0.0.0
+        ExecStart=/opt/ticker/tickerBackendGo -port {{item.port}} -host 0.0.0.0
         Restart=always
         [Install]
         WantedBy=multi-user.target
+    loop: "{{workers}}"
   - name: Enable and restart service
     systemd:
       daemon_reload: yes
       enabled: yes
       state: restarted
-      name: ticker
+      name: ticker{{item.code}}
+    loop: "{{workers}}"

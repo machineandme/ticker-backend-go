@@ -30,6 +30,9 @@ jobs:
       - name: Build task
         run: task build 
 
+      - name: Install datadog role
+        run: ansible-galaxy install datadog.datadog
+
       - name: Ansible some playbook
         run: ansible-playbook ../playbook.yaml
         working-directory: ansible
